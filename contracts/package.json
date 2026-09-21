@@ -2,12 +2,14 @@
   "name": "rantaiobat-contracts",
   "private": true,
   "scripts": {
+    "wallet:create": "node scripts/create-deployer.cjs",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "node": "hardhat node",
     "deploy:local": "hardhat run scripts/deploy.cjs --network localhost",
     "seed:local": "hardhat run scripts/seed.cjs --network localhost",
     "deploy:base-sepolia": "hardhat run scripts/deploy.cjs --network baseSepolia"
+    ,"seed:base-sepolia": "hardhat run scripts/seed-base-sepolia.cjs --network baseSepolia"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",

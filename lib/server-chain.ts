@@ -1,7 +1,6 @@
-import { env } from "cloudflare:workers";
 import { createPublicClient, decodeFunctionData, http, type Address, type Hash } from "viem";
 import { baseSepolia, contractAbi, statusLabel, type BatchView } from "./contract";
-export function chainConfig(){ const address=env.CONTRACT_ADDRESS as Address|undefined; const rpcUrl=env.RPC_URL||"https://sepolia.base.org"; if(!address) throw new Error("CONTRACT_ADDRESS is not configured"); return {address,rpcUrl}; }
+export function chainConfig(){ const address=process.env.CONTRACT_ADDRESS as Address|undefined; const rpcUrl=process.env.RPC_URL||"https://sepolia.base.org"; if(!address) throw new Error("CONTRACT_ADDRESS is not configured"); return {address,rpcUrl}; }
 export function chainClient(){ const {rpcUrl}=chainConfig(); return createPublicClient({chain:baseSepolia,transport:http(rpcUrl)}); }
 export async function readBatch(id:bigint):Promise<BatchView|null>{ const client=chainClient(); const {address}=chainConfig(); const v=await client.readContract({address,abi:contractAbi,functionName:"batches",args:[id]}); if(!v[9])return null; return {id:v[0].toString(),drugName:v[1],batchCode:v[2],manufacturer:v[3],productionDate:Number(v[4]),expiryDate:Number(v[5]),currentHolder:v[6],status:statusLabel[v[7]],dispensed:v[8]}; }
 export function decodeInitiate(input:Hash){ const d=decodeFunctionData({abi:contractAbi,data:input}); if(d.functionName!=="initiateTransfer")throw new Error("Transaction is not an initiateTransfer call"); const [batchId,toAddress]=d.args; return {batchId,toAddress}; }

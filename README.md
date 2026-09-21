@@ -2,6 +2,8 @@
 
 RantaiObat is a working, two-party-signed chain-of-custody registry for pharmaceutical batches. A manufacturer registers a batch, the current holder proposes a handoff, and the recipient must co-sign before custody changes. The Solidity contract—not the UI or database—enforces ownership and prevents a non-holder from creating a fork.
 
+Production: **https://rantaiobat.vercel.app**
+
 ## What is real in this MVP
 
 - `RantaiObat.sol` stores batches and accepted transfers on-chain and emits an event for every state change.
@@ -9,7 +11,7 @@ RantaiObat is a working, two-party-signed chain-of-custody registry for pharmace
 - A non-current holder's `initiateTransfer` transaction reverts on-chain.
 - The verifier reads batch data and complete accepted history from the contract.
 - Fork evidence is stored only after the backend verifies a mined reverted transaction, its target, decoded calldata, and the sender's prior holder status.
-- D1 is a read-optimized anomaly cache; it is not the custody source of truth.
+- The custody source of truth is always the contract. Persistent anomaly storage must be configured separately on Vercel; the API reports it as unavailable instead of pretending a write succeeded.
 - Registration, handoff, acceptance, dispensing, recall, and regulator flagging are real contract methods.
 - QR input uses the camera through `html5-qrcode`.
 
@@ -26,7 +28,7 @@ flowchart LR
   C -->|next handoff| P[Pharmacy wallet]
   P -->|markDispensed| C
   C -->|events + reads| A[Worker REST API]
-  A -->|verified anomaly cache| DB[(D1 / SQLite)]
+  A -. optional verified anomaly cache .-> DB[(Persistent SQL store)]
   A --> V[Public verifier]
   X[Non-holder wallet] -->|reverted fork tx| C
   C -. receipt + prior holder check .-> A
@@ -37,11 +39,11 @@ flowchart LR
 ```text
 app/                    React verifier, portal, and REST routes
 contracts/              Solidity contract, deployment/seed scripts, tests
-db/                     Drizzle D1 schema
-drizzle/                Generated D1 migration
+db/                     Original Drizzle cache schema
+drizzle/                Original cache migration
 lib/                    Shared ABI and chain clients
 PITCH.md                 10-minute judging script
-.openai/hosting.json     Sites deployment and D1 binding
+vercel.json              Vercel production configuration
 ```
 
 ## Contract invariants

@@ -1,0 +1,3 @@
+import { chainClient,chainConfig,readBatch } from "../../../lib/server-chain";
+import { contractAbi } from "../../../lib/contract";
+export async function GET(){try{const client=chainClient();const {address}=chainConfig();const nextId=await client.readContract({address,abi:contractAbi,functionName:"nextBatchId"});const start=nextId>26n?nextId-25n:1n;const ids=Array.from({length:Number(nextId-start)},(_,i)=>start+BigInt(i));const batches=(await Promise.all(ids.map(readBatch))).filter(Boolean).reverse();return Response.json({batches});}catch(e){return Response.json({error:e instanceof Error?e.message:"Unable to read the registry"},{status:503});}}

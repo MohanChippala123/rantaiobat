@@ -2,6 +2,7 @@ import { defineChain, parseAbi } from "viem";
 export const baseSepolia = defineChain({ id: 84532, name: "Base Sepolia", nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: ["https://sepolia.base.org"] } }, blockExplorers: { default: { name: "BaseScan", url: "https://sepolia.basescan.org" } }, testnet: true });
 export const contractAbi = parseAbi([
   "function nextBatchId() view returns (uint256)",
+  "function nextTransferId() view returns (uint256)",
   "function batches(uint256) view returns (uint256 id,string drugName,string batchCode,address manufacturer,uint64 productionDate,uint64 expiryDate,address currentHolder,uint8 status,bool dispensed,bool exists)",
   "function pendingTransfers(uint256) view returns (uint256 id,uint256 batchId,address fromAddress,address toAddress,uint64 timestamp,bytes32 evidenceHash,bool fromSigned,bool toSigned)",
   "function pendingTransferForBatch(uint256) view returns (uint256)",
